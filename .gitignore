@@ -1,0 +1,8 @@
+/venv/*
+db3.sqlite3
+/demo_projects/settings.py
+.idea/*
+__pycache__/
+.git/*
+
+*.pyc

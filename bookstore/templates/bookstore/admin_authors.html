@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+    {% include 'bookstore/includes/menu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="col mt-3">
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter">
+            Добавить автора
+        </button>
+        <h5>Авторы</h5>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Имя</th>
+                <th scope="col">Изменить</th>
+                <th scope="col">Удалить</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for author in authors %}
+                <tr>
+                    <th scope="row">{{ author.id }}</th>
+                    <td>{{ author.name }}</td>
+                    <td>
+                        <a class="btn btn-primary" href="{% url 'update_author' author.id %}">Редактировать</a>
+                    </td>
+                    <td><a class="btn btn-danger" href="{% url 'delete_author' author.id %}">Удалить</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Добавить автора</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="post" action="{% url 'create_author' %}">
+                        <div class="modal-body">
+                            {% csrf_token %}
+                            {{ form }}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

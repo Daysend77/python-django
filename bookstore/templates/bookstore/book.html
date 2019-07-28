@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+    {% include 'bookstore/includes/menu.html' %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="col mt-3">
+        <a href="{% url 'books' %}">Назад</a>
+        <div class="card mt-3">
+            <div class="card-block">
+                <h4 class="card-title">{{ book.title }}</h4>
+                <p class="card-text"><b>Автор:</b> {{ book.author.name }}</p>
+                <p class="card-text"><b>Описание:</b> {{ book.description }}</p>
+            </div>
+        </div>
+
+        <h5 class="mt-5">Комментарии</h5>
+        <ul class="list-group">
+            {% for comment in comments %}
+                <li class="list-group-item"><p style="font-weight:bold;">{{ comment.nick }} - {{ comment.time }}</p>
+                    <p>{{ comment.text }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+
+
+        <h5 class="mt-5">Написать комментарий</h5>
+        <form action="{% url 'create_comment' id=book.id %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+
+{% endblock %}

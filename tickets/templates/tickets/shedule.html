@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+    {% include 'tickets/includes/menu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="col-7 mt-3">
+        <div class="form-group">
+            <label for="input_departure">Станция отправления</label>
+            <input type="text" class="form-control" id="input_departure" placeholder="Откуда">
+            <div class='city_list' id="city_input_departure"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="exampleInputPassword1">Станция прибытия</label>
+            <input type="text" class="form-control" id="input_arrival" placeholder="Куда">
+            <div class="city_list" id="city_input_arrival"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="exampleData">Выбрать дату</label>
+            <input id="datepicker"/>
+        </div>
+        <button class="btn btn-primary" onclick="send_request()" id="btn_tickets">Найти</button>
+        <table class="table mt-3" id="train_table" style="display: none">
+            <thead>
+            <tr>
+                <th scope="col">Номер поезда</th>
+                <th scope="col">Время отправления</th>
+                <th scope="col">Время прибытия</th>
+                <th scope="col">Цена билета, руб</th>
+                <th scope="col">Заказать билет</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+     {% load staticfiles %}
+    <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+
+    <script>
+        function send_request() {
+            if ($('#datepicker').val()) {
+                let departure_code = $('#input_departure').attr('code_station');
+                let arrival_code = $('#input_arrival').attr('code_station');
+                let arrayOfDate = $('#datepicker').val().split('/');
+                let date = arrayOfDate[1] + '.' + arrayOfDate[0] + '.' + arrayOfDate[2];
+
+                $.ajax({
+                    url: "{% url 'time_arrival' %}",
+                    data: {
+                        'departure_code': departure_code,
+                        'arrival_code': arrival_code
+                    },
+                    success: function (data) {
+                        $('#alert-msg').remove();
+                        $('#train_table').show();
+                        let arr = JSON.parse(data);
+                        for (let i = 0; i < arr.length; i++) {
+                            $('#train_table > tbody').append('<tr>' +
+                                '<td><a href="https://www.tutu.ru/poezda/rasp_d.php?' + arr[i].numberForUrl + '">' + arr[i].trainNumber + '</a></td>' +
+                                '<td>' + arr[i].departureTime + '</td>' +
+                                '<td>' + arr[i].arrivalTime + '</td>' +
+                                '<td>' + arr[i].categories[0]['price'] + '</td>' +
+                                `<td><a href="https://www.tutu.ru/poezda/rasp_d.php?nnst1=${departure_code}&nnst2=${arrival_code}&date=${date}">Заказать билет</a></td>` +
+                                '</tr>')
+                        }
+                    },
+                    error: function () {
+                        $('#btn_tickets').after('<div id="alert-msg" class="alert alert-danger mt-3" role="alert">' +
+                            'Пожалуйста, выберите корректные станции отправления и прибытия' +
+                            '</div>')
+                    }
+                });
+            }
+        }
+
+        function ajax_search(value, id) {
+            $.ajax({
+                url: "{% url 'get_city_list' %}",
+                data: {'city': value},
+                success: function (data) {
+                    let arr = JSON.parse(data);
+                    for (let i = 0; i < arr.length; i++) {
+                        $('#city_' + id).append('<p class="city_option" onclick="addInput(this);" code_station="' + arr[i][0] + '">' + arr[i][1] + '</p>')
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}
